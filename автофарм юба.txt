@@ -1,0 +1,309 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local CloseButton = Instance.new("TextButton")
+local Title = Instance.new("TextLabel")
+local AutoFarm = Instance.new("TextButton")
+local AutoSell = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
+local UICorner2 = Instance.new("UICorner")
+local UICorner3 = Instance.new("UICorner")
+local UICorner4 = Instance.new("UICorner")
+local Credit = Instance.new("TextLabel")
+
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Name = "SurexGUI_" .. math.random(1000,9999)
+ScreenGui.ResetOnSpawn = false
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.05, 0, 0.05, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 150)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+UICorner.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 8)
+
+CloseButton.Parent = MainFrame
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Position = UDim2.new(0.85, 0, 0.05, 0)
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 14
+
+UICorner2.Parent = CloseButton
+UICorner2.CornerRadius = UDim.new(0, 4)
+
+Title.Parent = MainFrame
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.BorderSizePixel = 0
+Title.Position = UDim2.new(0.1, 0, 0.05, 0)
+Title.Size = UDim2.new(0, 140, 0, 20)
+Title.Font = Enum.Font.SourceSansSemibold
+Title.Text = "Surex's Team"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 14
+
+AutoFarm.Parent = MainFrame
+AutoFarm.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AutoFarm.BorderSizePixel = 0
+AutoFarm.Position = UDim2.new(0.1, 0, 0.3, 0)
+AutoFarm.Size = UDim2.new(0, 160, 0, 30)
+AutoFarm.Font = Enum.Font.SourceSansSemibold
+AutoFarm.Text = "Auto Farm: OFF"
+AutoFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoFarm.TextSize = 14
+
+UICorner3.Parent = AutoFarm
+UICorner3.CornerRadius = UDim.new(0, 6)
+
+AutoSell.Parent = MainFrame
+AutoSell.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AutoSell.BorderSizePixel = 0
+AutoSell.Position = UDim2.new(0.1, 0, 0.6, 0)
+AutoSell.Size = UDim2.new(0, 160, 0, 30)
+AutoSell.Font = Enum.Font.SourceSansSemibold
+AutoSell.Text = "Auto Sell: OFF"
+AutoSell.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoSell.TextSize = 14
+
+UICorner4.Parent = AutoSell
+UICorner4.CornerRadius = UDim.new(0, 6)
+
+Credit.Parent = MainFrame
+Credit.BackgroundTransparency = 1
+Credit.Position = UDim2.new(0.05, 0, 0.85, 0)
+Credit.Size = UDim2.new(0, 180, 0, 20)
+Credit.Font = Enum.Font.SourceSans
+Credit.Text = "by Surex's Team"
+Credit.TextColor3 = Color3.fromRGB(150, 150, 150)
+Credit.TextSize = 12
+
+local tpOn = false
+local sell = false
+local isRunning = false
+
+local function safeTeleport(cframe)
+	pcall(function()
+		local character = game.Players.LocalPlayer.Character
+		if character and character:FindFirstChild("HumanoidRootPart") then
+			character.HumanoidRootPart.CFrame = cframe
+		end
+	end)
+end
+
+local function travelTo(place)
+	if not place or not place:IsA("BasePart") then return end
+	
+	local character = game.Players.LocalPlayer.Character
+	if not character then return end
+	
+	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+	if not humanoidRootPart then return end
+	
+	local vector = place.Position - humanoidRootPart.Position
+	local length = vector.Magnitude
+	
+	if length < 50 then
+		safeTeleport(CFrame.new(place.Position))
+		return
+	end
+	
+	local num_tp = math.ceil(length / 50)
+	for i = 1, num_tp do
+		if not tpOn then break end
+		
+		local progress = i / num_tp
+		local targetCFrame = humanoidRootPart.CFrame + (vector * progress)
+		safeTeleport(targetCFrame)
+		
+		task.wait(0.1)
+	end
+end
+
+function maxItems()
+	if not game.Players.LocalPlayer then return end
+	
+	local items = {
+		["Mysterious Arrow"] = 0,
+		["Rokakaka"] = 0,
+		["Gold Coin"] = 0,
+		["Diamond"] = 0,
+		["Pure Rokakaka"] = 0,
+		["Quinton's Glove"] = 0,
+		["Steel Ball"] = 0,
+		["Rib Cage of The Saint's Corpse"] = 0,
+		["Zepellin's Headband"] = 0,
+		["Zeppeli's Hat"] = 0,
+		["Caesar's Headband"] = 0,
+		["Clackers"] = 0,
+		["Stone Mask"] = 0,
+		["Ancient Scroll"] = 0,
+		["Dio's Diary"] = 0,
+		["Lucky Stone Mask"] = 0,
+		["Gold Umbrella"] = 0
+	}
+
+	local maxLimits = {
+		["Mysterious Arrow"] = 25,
+		["Rokakaka"] = 25,
+		["Gold Coin"] = 45,
+		["Diamond"] = 25,
+		["Pure Rokakaka"] = 10,
+		["Quinton's Glove"] = 10,
+		["Steel Ball"] = 10,
+		["Rib Cage of The Saint's Corpse"] = 10,
+		["Zepellin's Headband"] = 10,
+		["Zeppeli's Hat"] = 10,
+		["Caesar's Headband"] = 10,
+		["Clackers"] = 10,
+		["Stone Mask"] = 10,
+		["Ancient Scroll"] = 10,
+		["Dio's Diary"] = 10,
+		["Pure Rokakaka"] = 999,
+		["Lucky Stone Mask"] = 999,
+		["Lucky Arrow"] = 999,
+		["Gold Umbrella"] = 999,
+		["Left Arm of The Saint's Corpse"] = 999,
+		["Heart of The Saint's Corpse"] = 999,
+		["Pelvis of The Saint's Corpse"] = 999
+	}
+
+	local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+	if backpack then
+		for _, item in pairs(backpack:GetChildren()) do
+			if items[item.Name] then
+				items[item.Name] = items[item.Name] + 1
+				if sell and (items[item.Name] >= (maxLimits[item.Name] or 25)) then
+					sellItem(item)
+				end
+			end
+		end
+	end
+end
+
+function sellItem(item)
+	pcall(function()
+		local plrName = game.Players.LocalPlayer.Name
+		local character = game.Workspace:FindFirstChild("Living")
+		if character then
+			character = character:FindFirstChild(plrName)
+		end
+		
+		if character and item then
+			item.Parent = character
+			
+			local args = {
+				[1] = "EndDialogue",
+				[2] = {
+					["NPC"] = "Merchant",
+					["Option"] = "Option2",
+					["Dialogue"] = "Dialogue5"
+				}
+			}
+
+			game:GetService("Players").LocalPlayer.Character.RemoteEvent:FireServer(unpack(args))
+			
+			task.wait(0.5)
+			if item then
+				item.Parent = game.Players.LocalPlayer.Backpack
+			end
+		end
+	end)
+end
+
+function mainTP()
+	if isRunning then return end
+	isRunning = true
+	
+	while tpOn do
+		local character = game.Players.LocalPlayer.Character
+		if not character then
+			task.wait(1)
+			continue
+		end
+		
+		maxItems()
+		
+		local itemSpawns = game.Workspace:FindFirstChild("Item_Spawns")
+		if itemSpawns then
+			itemSpawns = itemSpawns:FindFirstChild("Items")
+		end
+		
+		if itemSpawns then
+			for _, v in pairs(itemSpawns:GetChildren()) do
+				if not tpOn then break end
+				
+				local item = v:FindFirstChild("MeshPart")
+				if item and item:FindFirstChild("PointLight") then
+					local proxPrompt = v:FindFirstChild("ProximityPrompt")
+					if proxPrompt then
+						while item:IsDescendantOf(game.Workspace) and tpOn do
+							local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+							if not humanoidRootPart then break end
+							
+							travelTo(item)
+							
+							if (item.Position - humanoidRootPart.Position).Magnitude < 5 then
+								maxItems()
+								fireproximityprompt(proxPrompt, 4)
+								task.wait(0.5)
+							end
+							
+							task.wait(0.05)
+						end
+						maxItems()
+					end
+				end
+				
+				task.wait(0.01)
+			end
+		end
+		
+		task.wait(1)
+	end
+	
+	isRunning = false
+end
+
+AutoSell.MouseButton1Click:Connect(function()
+	sell = not sell
+	if sell then
+		AutoSell.Text = "Auto Sell: ON"
+		AutoSell.BackgroundColor3 = Color3.fromRGB(80, 160, 80)
+	else
+		AutoSell.Text = "Auto Sell: OFF"
+		AutoSell.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	end
+	maxItems()
+end)
+
+AutoFarm.MouseButton1Click:Connect(function()
+	tpOn = not tpOn
+	if tpOn then
+		AutoFarm.Text = "Auto Farm: ON"
+		AutoFarm.BackgroundColor3 = Color3.fromRGB(80, 160, 80)
+		coroutine.wrap(mainTP)()
+	else
+		AutoFarm.Text = "Auto Farm: OFF"
+		AutoFarm.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+	if tpOn then
+		task.wait(3)
+		coroutine.wrap(mainTP)()
+	end
+end)
+
+print("by Surex")
